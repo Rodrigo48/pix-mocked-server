@@ -28,6 +28,7 @@ describe('CobController', () => {
         .send({ grant_type: 'client_credentials', client_id: '123', client_secret: 'abc' })
         .set("mocked-token", "123")
         .expect(201)
+        .expect((res: any) => expect(res.body).toEqual({ access_token: '123-abc', token_type: 'Bearer', expires_in: 300 }))
         //.expect((res: any) => expect(JSON.parse(res.text)).toMatchObject({ chave: correntistas[1].chave, calendario: { expiracao: 3600 } }))
     });
   
