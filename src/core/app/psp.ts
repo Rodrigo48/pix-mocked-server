@@ -112,7 +112,7 @@ export class PSP {
         const last = () => this.cob.read(key.IdOwner, { txid: key.txid });
         const hist = () => this.transHist.read(key.IdOwner, { id: getMD5Hash(key.txid, revisao) });
 
-        const curr = revisao ? (await hist()) || (await last()) : (await last());
+        const curr = revisao != null ? (await hist()) || (await last()) : (await last());
         if (!curr) { return undefined }
 
         const c = await this.correntistas.read("DEV", { chave: curr.chave });
@@ -220,11 +220,11 @@ export class PSP {
             if (itm.data.loc?.id != null) {
                 const lc = await this.loccob.read(itm.IdOwner, { txid: itm.txid });
 
-                if (lc?.id != itm.data.loc.id) {
+                if (lc && lc.id != itm.data.loc.id) {
                     await this.loccob.remove(itm.IdOwner, { id: lc.id });
                     try { await this.joinLocCob(itm.IdOwner, itm.txid, itm.data.loc.id, tipoCob); }
                     catch (ex) {
-                        await this.loccob.add(itm.IdOwner, { id: lc.id }); //desfaz a exclusão
+                        await this.loccob.add(itm.IdOwner, { txid: itm.txid, id: lc.id }); //desfaz a exclusão
                         throw ex;
                     }
                 }
